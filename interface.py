@@ -1,9 +1,31 @@
 import os
 import time
 import serial
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import style
 
 #Constant variable, denotes total number of choices available on menu
 CHOICES = 2
+arduino = serial.Serial('COM5', 115200, timeout =.1)
+style.use('fivethirtyeight')
+
+fig = plt.figure()
+ax1 = fig.add_subplot(1,1,1)
+
+def animate(i):
+    liveData = arduino.readline()
+    lines = arduino.split('\n')
+    xs = []
+    ys = []
+    for line in lines:
+	if len(line) > 1:
+	    x, y = line.split(',')
+	    xs.append(x)
+	    ys.append(y)
+    ax1.clear()
+    ax1.plot(xs,ys)
+    print liveData
 
 try:
     #Main Menu
@@ -34,12 +56,9 @@ try:
             print "Now monitoring. Press ctrl+c to stop program. "
             #Do all the monitoring things
             while True:
-                liveData = open("live.txt", "a")
-                #data = arduino.readline()
-                liveData.write(data)
-                #print "monitoring!\n"
-                liveData.close()
-
+		ani = animation.FuncAnimation(fig,animate, interval = 1000)
+		plt.show()
+                
     #Record
     elif menuinput == 2:
     #Open .csv for data storage
